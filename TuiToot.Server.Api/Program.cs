@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using TuiToot.Server.Api.Cores;
+using TuiToot.Server.Api.Exceptions;
 using TuiToot.Server.Infrastructure.EfCore.DataAccess;
 using TuiToot.Server.Infrastructure.EfCore.Models;
 
@@ -28,7 +29,15 @@ namespace TuiToot.Server.Api
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
-
+            app.UseExceptionHandler(appBuilder =>
+            {
+                appBuilder.Run(async context =>
+                {
+                    var exceptionHandler = app.Services.GetRequiredService<ILogger<GlobalExceptionHandler>>();
+                    var handler = new GlobalExceptionHandler(exceptionHandler);
+                    await handler.InvokeAsync(context);
+                });
+            });
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
