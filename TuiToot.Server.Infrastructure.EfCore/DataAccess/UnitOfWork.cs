@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TuiToot.Server.Infrastructure.EfCore.Repository;
 
 namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
 {
@@ -12,6 +13,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
 
         private readonly AppDbContext _context;
         private IDbContextTransaction? _transaction = null;
+        private IApplicationUserRepository? _applicationUserRepository;
 
         public UnitOfWork(AppDbContext context)
         {
@@ -19,6 +21,8 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
         }
 
         public AppDbContext Context => _context;
+
+        public IApplicationUserRepository ApplicationUserRepository => _applicationUserRepository ??= new ApplicationUserRepository(_context);
 
         public async Task BeginTransactionAsync()
         {
