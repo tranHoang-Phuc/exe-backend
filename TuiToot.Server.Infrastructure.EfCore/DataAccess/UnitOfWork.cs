@@ -13,8 +13,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
 
         private readonly AppDbContext _context;
         private IDbContextTransaction? _transaction = null;
-        private IApplicationUserRepository? _applicationUserRepository;
-
+        private IApplicationUserRepository _applicationUserRepository;
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
@@ -23,7 +22,6 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
         public AppDbContext Context => _context;
 
         public IApplicationUserRepository ApplicationUserRepository => _applicationUserRepository ??= new ApplicationUserRepository(_context);
-
         public async Task BeginTransactionAsync()
         {
             _transaction = await _context.Database.BeginTransactionAsync();
