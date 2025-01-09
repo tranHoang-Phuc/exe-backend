@@ -11,6 +11,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
     {
         AppDbContext Context { get; }
         IApplicationUserRepository ApplicationUserRepository { get; }
+        IInvalidTokenRepository InvalidTokenRepository { get; }
         Task<int> SaveChangesAsync();
         Task BeginTransactionAsync();
         Task CommitTransactionAsync();

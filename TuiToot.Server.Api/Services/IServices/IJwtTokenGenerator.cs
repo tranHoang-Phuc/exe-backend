@@ -6,6 +6,6 @@ namespace TuiToot.Server.Api.Services.IServices
     {
         Task<string> GenerateToken(ApplicationUser user, IEnumerable<string> roles);
         Task<string> GenerateRefreshToken();
-        Task<bool> IsTokenValid(string token);
+        Task<bool> IsTokenValidAsync(string token);
     }
 }
