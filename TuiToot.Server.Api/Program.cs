@@ -64,7 +64,7 @@ namespace TuiToot.Server.Api
                                var invalidToken = await unitOfWork.InvalidTokenRepository
                                    .FindAsync(t => t.Token == token);
 
-                               if (invalidToken != null)
+                               if (invalidToken.Count() > 0)
                                {
                                    throw new AppException(ErrorCode.Unauthorized);
                                }
