@@ -16,5 +16,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.Models
         public string? Address { get; set; }
         public DateTime CreatedTime { get; set; } = DateTime.Now;
         public DateTime UpdatedTime { get; set; } = DateTime.Now;
+
+        public virtual ICollection<DeliveryAddress> DeliveryAddresses { get; set; }
     }
 }

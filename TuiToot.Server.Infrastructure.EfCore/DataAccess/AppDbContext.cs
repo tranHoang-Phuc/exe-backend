@@ -39,6 +39,25 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
                 entity.Property(e => e.Token)
                       .IsRequired();
             });
+
+            builder.Entity<DeliveryAddress>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id)
+                      .ValueGeneratedOnAdd();
+                entity.Property(e => e.ProvinceId)
+                        .IsRequired();
+                entity.Property(e => e.DistrictId)
+                        .IsRequired();
+                entity.Property(e => e.WardId)
+                        .IsRequired();
+                entity.Property(e => e.DetailAddress)
+                        .IsRequired();
+                entity.HasOne<ApplicationUser>(a => a.ApplicationUser)
+                        .WithMany(d => d.DeliveryAddresses)
+                        .HasForeignKey(d => d.ApplicationUserId)
+                        .OnDelete(DeleteBehavior.Cascade);
+            });
         }
     }
 }

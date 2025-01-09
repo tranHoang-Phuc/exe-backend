@@ -15,6 +15,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
         private IDbContextTransaction? _transaction = null;
         private IApplicationUserRepository _applicationUserRepository;
         private IInvalidTokenRepository _invalidTokenRepository;
+        private IDeliveryAddressRepository _deliveryAddressRepository;
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
@@ -25,6 +26,8 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
         public IApplicationUserRepository ApplicationUserRepository => _applicationUserRepository ??= new ApplicationUserRepository(_context);
 
         public IInvalidTokenRepository InvalidTokenRepository => _invalidTokenRepository ??= new InvalidTokenRepository(_context);
+
+        public IDeliveryAddressRepository DeliveryAddressRepository => _deliveryAddressRepository ??= new DeliveryAddressRepository(_context);
 
         public async Task BeginTransactionAsync()
         {
