@@ -28,7 +28,8 @@ namespace TuiToot.Server.Api
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                .AddEntityFrameworkStores<AppDbContext>()
                .AddDefaultTokenProviders();
-
+            
+            builder.Services.AddHttpContextAccessor();
             builder.Services.AddControllers();
             builder.Services.AddAuthentication(options =>
             {
@@ -69,13 +70,12 @@ namespace TuiToot.Server.Api
                                }
                            }
                        },
-                       OnAuthenticationFailed = context =>
+                       OnAuthenticationFailed = async context =>
                        {
                            if (context.Exception.GetType() == typeof(SecurityTokenExpiredException))
                            {
-
+                               throw new AppException(ErrorCode.Unauthorized);
                            }
-                           return Task.CompletedTask;
                        },
 
                    };
@@ -95,6 +95,8 @@ namespace TuiToot.Server.Api
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
             builder.Services.AddScoped<IInvalidTokenRepository, InvalidTokenRepository>();
+            builder.Services.AddScoped<IDeliveryAddressRepository, DeliveryAddressRepository>();
+            builder.Services.AddScoped<IDeliveryAddressService, DeliveryAddressService>();
 
             var app = builder.Build();
             app.UseExceptionHandler(appBuilder =>

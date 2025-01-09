@@ -44,7 +44,6 @@ namespace TuiToot.Server.Infrastructure.EfCore.Repository
         {
             return await Task.Run(() => _dbSet.Where(condition));
         }
-
         public async Task<IQueryable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? filter = null, string? includeProperties = null)
         {
             IQueryable<TEntity> query = _dbSet;
