@@ -13,20 +13,27 @@ namespace TuiToot.Server.Api.Services
 
         private readonly IUnitOfWork _unitOfWork;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
 
 
         public AuthService(IUnitOfWork unitOfWork, UserManager<ApplicationUser> userManager,
-            RoleManager<IdentityRole> roleManager, IJwtTokenGenerator jwtTokenGenerator)
+            IJwtTokenGenerator jwtTokenGenerator)
         {
             _unitOfWork = unitOfWork;
             _userManager = userManager;
-            _roleManager = roleManager;
             _jwtTokenGenerator = jwtTokenGenerator;
         }
 
-        public async Task<LoginResponse> Login(LoginRequest request)
+        public async Task<IntrospectResponse> IntrospectAsync(string token)
+        {
+            var response = new IntrospectResponse
+            {
+                IsValid = await _jwtTokenGenerator.IsTokenValidAsync(token)
+            };
+            return response;
+        }
+
+        public async Task<LoginResponse> LoginAsync(LoginRequest request)
         {
             var users = await _unitOfWork.ApplicationUserRepository
                 .FindAsync(u => u.UserName.ToLower() == request.Email.ToLower());
@@ -40,12 +47,22 @@ namespace TuiToot.Server.Api.Services
             var loginResponse = new LoginResponse
             {
                 AccessToken = token,
-                ExpiresIn = 300
+                ExpiresIn = 3600
             };
             return loginResponse;
         }
 
-        public async Task<ApplicationUserResponse> Register(RegistrationRequest request)
+        public async Task<bool> LogoutAsync(string token)
+        {
+            await _unitOfWork.InvalidTokenRepository.AddAsync(new InvalidToken
+            {
+                Token = token
+            });
+      
+            return await _unitOfWork.SaveChangesAsync() == 1;
+        }
+
+        public async Task<ApplicationUserResponse> RegisterAsync(RegistrationRequest request)
         {
             var user = new ApplicationUser
             {

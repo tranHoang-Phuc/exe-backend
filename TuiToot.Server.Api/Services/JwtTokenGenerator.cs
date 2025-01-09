@@ -4,6 +4,8 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using TuiToot.Server.Api.Cores;
+using TuiToot.Server.Api.Exceptions;
+using TuiToot.Server.Infrastructure.EfCore.DataAccess;
 using TuiToot.Server.Infrastructure.EfCore.Models;
 
 namespace TuiToot.Server.Api.Services.IServices
@@ -11,9 +13,11 @@ namespace TuiToot.Server.Api.Services.IServices
     public class JwtTokenGenerator : IJwtTokenGenerator
     {
         private readonly JwtOptions _jwtOptions;
-        public JwtTokenGenerator(IOptions<JwtOptions> jwtOptions)
+        private readonly IUnitOfWork _unitOfWork;
+        public JwtTokenGenerator(IOptions<JwtOptions> jwtOptions, IUnitOfWork unitOfWork)
         {
             _jwtOptions = jwtOptions.Value;
+            _unitOfWork = unitOfWork;
         }
         public Task<string> GenerateRefreshToken()
         {
@@ -47,9 +51,42 @@ namespace TuiToot.Server.Api.Services.IServices
             return await Task.FromResult(tokenHandler.WriteToken(token));
         }
 
-        public Task<bool> IsTokenValid(string token)
+        public async Task<bool> IsTokenValidAsync(string token)
         {
-            throw new NotImplementedException();
+            try
+            {
+                var tokenHandler = new JwtSecurityTokenHandler();
+                var key = Encoding.ASCII.GetBytes(_jwtOptions.Secret);
+                var tokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(key),
+                    ValidateIssuer = true,
+                    ValidIssuer = _jwtOptions.Issuer,
+                    ValidateAudience = true,
+                    ValidAudience = _jwtOptions.Audience,
+                    ValidateLifetime = true,
+                    ClockSkew = TimeSpan.Zero
+                };
+                tokenHandler.ValidateToken(token, tokenValidationParameters, out SecurityToken validatedToken);
+                var invalidToken = await _unitOfWork.InvalidTokenRepository
+                    .FindAsync(t => t.Token == token);
+                if (invalidToken.Any())
+                {
+                    return false;
+                }
+                if (validatedToken is JwtSecurityToken jwtToken &&
+                    jwtToken.Header.Alg.Equals(SecurityAlgorithms.HmacSha256, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return true;
+                }
+
+                return false;
+            }
+            catch (Exception)
+            {
+                throw new AppException(ErrorCode.InvalidToken);
+            }
         }
     }
 }

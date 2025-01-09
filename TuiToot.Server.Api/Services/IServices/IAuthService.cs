@@ -6,7 +6,9 @@ namespace TuiToot.Server.Api.Services.IServices
 {
     public interface IAuthService
     {
-        Task<ApplicationUserResponse> Register(RegistrationRequest request);
-        Task<LoginResponse> Login(LoginRequest request);
+        Task<ApplicationUserResponse> RegisterAsync(RegistrationRequest request);
+        Task<LoginResponse> LoginAsync(LoginRequest request);
+        Task<bool> LogoutAsync(string token);
+        Task<IntrospectResponse> IntrospectAsync(string token);
     }
 }

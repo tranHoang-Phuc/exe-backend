@@ -16,6 +16,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
         }
 
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
+        public DbSet<InvalidToken> InvalidTokens { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -29,6 +30,14 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
                     .HasDefaultValueSql("GETDATE()").IsRequired();
                 entity.Property(e => e.UpdatedTime)
                     .HasDefaultValueSql("GETDATE()").IsRequired();
+            });
+            builder.Entity<InvalidToken>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id)
+                      .ValueGeneratedOnAdd(); 
+                entity.Property(e => e.Token)
+                      .IsRequired();
             });
         }
     }

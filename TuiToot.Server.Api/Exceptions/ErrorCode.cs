@@ -18,6 +18,7 @@ namespace TuiToot.Server.Api.Exceptions
         public static readonly ErrorCode InvalidKey = new ErrorCode(1001, "Invalid Key Exception", HttpStatusCode.BadRequest);
         public static readonly ErrorCode UserExisted = new ErrorCode(1002, "User existed", HttpStatusCode.BadRequest);
         public static readonly ErrorCode Unauthorized = new ErrorCode(1003, "Unauthorized", HttpStatusCode.Unauthorized);
+        public static readonly ErrorCode InvalidToken = new ErrorCode(1004, "Invalid Token", HttpStatusCode.BadRequest);
     }
    
 }
