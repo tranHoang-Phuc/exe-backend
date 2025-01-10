@@ -242,19 +242,39 @@ namespace TuiToot.Server.Infrastructure.EfCore.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("TuiToot.Server.Infrastructure.EfCore.Models.BagType", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BagType");
+                });
+
             modelBuilder.Entity("TuiToot.Server.Infrastructure.EfCore.Models.DeliveryAddress", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<string>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<string>("ApplicationUserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<string>("DetailAdrress")
+                    b.Property<string>("DetailAddress")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -289,6 +309,74 @@ namespace TuiToot.Server.Infrastructure.EfCore.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("InvalidTokens");
+                });
+
+            modelBuilder.Entity("TuiToot.Server.Infrastructure.EfCore.Models.Order", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("ApplicationUserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<string>("DeliveryAddressId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<int>("OrderStatus")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ApplicationUserId");
+
+                    b.HasIndex("DeliveryAddressId");
+
+                    b.ToTable("Order");
+                });
+
+            modelBuilder.Entity("TuiToot.Server.Infrastructure.EfCore.Models.Product", b =>
+                {
+                    b.Property<string>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("BagTypeId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedTime")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetime2")
+                        .HasDefaultValueSql("GETDATE()");
+
+                    b.Property<string>("OrderId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BagTypeId");
+
+                    b.HasIndex("OrderId");
+
+                    b.ToTable("Product");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -353,9 +441,64 @@ namespace TuiToot.Server.Infrastructure.EfCore.Migrations
                     b.Navigation("ApplicationUser");
                 });
 
+            modelBuilder.Entity("TuiToot.Server.Infrastructure.EfCore.Models.Order", b =>
+                {
+                    b.HasOne("TuiToot.Server.Infrastructure.EfCore.Models.ApplicationUser", "ApplicationUser")
+                        .WithMany("Orders")
+                        .HasForeignKey("ApplicationUserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("TuiToot.Server.Infrastructure.EfCore.Models.DeliveryAddress", "DeliveryAddress")
+                        .WithMany("Orders")
+                        .HasForeignKey("DeliveryAddressId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+
+                    b.Navigation("DeliveryAddress");
+                });
+
+            modelBuilder.Entity("TuiToot.Server.Infrastructure.EfCore.Models.Product", b =>
+                {
+                    b.HasOne("TuiToot.Server.Infrastructure.EfCore.Models.BagType", "BagType")
+                        .WithMany("Products")
+                        .HasForeignKey("BagTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("TuiToot.Server.Infrastructure.EfCore.Models.Order", "Order")
+                        .WithMany("Products")
+                        .HasForeignKey("OrderId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BagType");
+
+                    b.Navigation("Order");
+                });
+
             modelBuilder.Entity("TuiToot.Server.Infrastructure.EfCore.Models.ApplicationUser", b =>
                 {
                     b.Navigation("DeliveryAddresses");
+
+                    b.Navigation("Orders");
+                });
+
+            modelBuilder.Entity("TuiToot.Server.Infrastructure.EfCore.Models.BagType", b =>
+                {
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("TuiToot.Server.Infrastructure.EfCore.Models.DeliveryAddress", b =>
+                {
+                    b.Navigation("Orders");
+                });
+
+            modelBuilder.Entity("TuiToot.Server.Infrastructure.EfCore.Models.Order", b =>
+                {
+                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }

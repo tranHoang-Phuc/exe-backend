@@ -18,5 +18,6 @@ namespace TuiToot.Server.Infrastructure.EfCore.Models
         public DateTime UpdatedTime { get; set; } = DateTime.Now;
 
         public virtual ICollection<DeliveryAddress> DeliveryAddresses { get; set; }
+        public virtual ICollection<Order> Orders { get; set; }
     }
 }

@@ -16,6 +16,9 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
         private IApplicationUserRepository _applicationUserRepository;
         private IInvalidTokenRepository _invalidTokenRepository;
         private IDeliveryAddressRepository _deliveryAddressRepository;
+        private IProductRepository _productRepository;
+        private IOrderRepository _orderRepository;
+        private IBagTypeRepository _bagTypeRepository;
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
@@ -28,6 +31,12 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
         public IInvalidTokenRepository InvalidTokenRepository => _invalidTokenRepository ??= new InvalidTokenRepository(_context);
 
         public IDeliveryAddressRepository DeliveryAddressRepository => _deliveryAddressRepository ??= new DeliveryAddressRepository(_context);
+
+        public IOrderRepository OrderRepository => _orderRepository ??= new OrderRepository(_context);
+
+        public IBagTypeRepository BagTypeRepository => _bagTypeRepository ??= new BagTypeRepository(_context);
+
+        public IProductRepository ProductRepository => _productRepository ??= new ProductRepository(_context);
 
         public async Task BeginTransactionAsync()
         {
