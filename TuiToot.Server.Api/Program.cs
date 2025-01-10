@@ -1,6 +1,9 @@
+using CloudinaryDotNet;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TuiToot.Server.Api.Cores;
@@ -25,6 +28,10 @@ namespace TuiToot.Server.Api
             });
             builder.Services.Configure<JwtOptions>(
                 builder.Configuration.GetSection("ApiSetting:JwtOptions"));
+            builder.Services.Configure<CloudinarySettings>(
+                builder.Configuration.GetSection("CloudinarySettings")
+                );
+
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
                .AddEntityFrameworkStores<AppDbContext>()
                .AddDefaultTokenProviders();
@@ -97,7 +104,22 @@ namespace TuiToot.Server.Api
             builder.Services.AddScoped<IInvalidTokenRepository, InvalidTokenRepository>();
             builder.Services.AddScoped<IDeliveryAddressRepository, DeliveryAddressRepository>();
             builder.Services.AddScoped<IDeliveryAddressService, DeliveryAddressService>();
+            builder.Services.AddScoped<IOrderRepository, OrderRepository>();
+            builder.Services.AddScoped<IOrderService, OrderService>();
+            builder.Services.AddScoped<IBagTypeRepository, BagTypeRepository>();
+            builder.Services.AddScoped<ICloudaryService, CloudaryService>();
+            builder.Services.AddScoped<IProductRepository, ProductRepository>();
 
+
+            builder.Services.AddSingleton(provider =>
+            {
+                var settings = provider.GetRequiredService<IOptions<CloudinarySettings>>().Value;
+                return new CloudinaryDotNet.Cloudinary(new Account(
+                    settings.CloudName,
+                    settings.ApiKey,
+                    settings.ApiSecret
+                ));
+            });
             var app = builder.Build();
             app.UseExceptionHandler(appBuilder =>
             {
