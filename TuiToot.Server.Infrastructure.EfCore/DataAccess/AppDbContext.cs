@@ -58,6 +58,74 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
                         .HasForeignKey(d => d.ApplicationUserId)
                         .OnDelete(DeleteBehavior.Cascade);
             });
+
+            builder.Entity<BagType>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id)
+                      .ValueGeneratedOnAdd();
+                entity.Property(e => e.Name)
+                        .IsRequired();
+                entity.Property(e => e.Url)
+                        .IsRequired();
+                entity.Property(e => e.Description);
+                entity.HasMany<Product>(e => e.Products)
+                        .WithOne(p => p.BagType)
+                        .HasForeignKey(p => p.BagTypeId)
+                        .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            builder.Entity<Product>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id)
+                      .ValueGeneratedOnAdd();
+                entity.Property(e => e.Url)
+                        .IsRequired();
+                entity.Property(e => e.BagTypeId)
+                        .IsRequired();
+                entity.Property(e => e.CreatedTime)
+                        .HasDefaultValueSql("GETDATE()").IsRequired();
+                entity.Property(e => e.OrderId);
+                entity.HasOne<Order>(p => p.Order)
+                        .WithMany(o => o.Products)
+                        .HasForeignKey(p => p.OrderId)
+                        .OnDelete(DeleteBehavior.Cascade);
+                entity.HasOne<BagType>(p => p.BagType)
+                        .WithMany(b => b.Products)
+                        .HasForeignKey(p => p.BagTypeId)
+                        .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            builder.Entity<Order>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id)
+                      .ValueGeneratedOnAdd();
+                entity.Property(e => e.ApplicationUserId)
+                        .IsRequired();
+                entity.Property(e => e.DeliveryAddressId)
+                        .IsRequired();
+                entity.Property(e => e.OrderStatus)
+                        .IsRequired();
+                entity.Property(e => e.CreatedAt)
+                        .HasDefaultValueSql("GETDATE()").IsRequired();
+                entity.Property(e => e.UpdatedAt)
+                        .HasDefaultValueSql("GETDATE()").IsRequired();
+                entity.HasOne<ApplicationUser>(o => o.ApplicationUser)
+                    .WithMany(a => a.Orders)
+                    .HasForeignKey(o => o.ApplicationUserId)
+                    .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasOne<DeliveryAddress>(o => o.DeliveryAddress)
+                      .WithMany(d => d.Orders)
+                      .HasForeignKey(o => o.DeliveryAddressId)
+                      .OnDelete(DeleteBehavior.Restrict);
+
+                entity.HasMany<Product>(o => o.Products)
+                      .WithOne(p => p.Order)
+                      .HasForeignKey(p => p.OrderId);
+            });
         }
     }
 }
