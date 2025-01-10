@@ -12,8 +12,9 @@ namespace TuiToot.Server.Infrastructure.EfCore.Models
         public string BagTypeId { get; set; }
         public virtual BagType BagType { get; set; }
         public string? Url { get; set; }
-        public DateTime CreatedTime { get; set; }
+        public DateTime CreatedTime { get; set; } = DateTime.Now;
         public string OrderId { get; set; }
         public virtual Order Order { get; set; }
+        public decimal Price { get; set; }
     }
 }

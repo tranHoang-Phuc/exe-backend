@@ -20,6 +20,9 @@ namespace TuiToot.Server.Api.Exceptions
         public static readonly ErrorCode Unauthorized = new ErrorCode(1003, "Unauthorized", HttpStatusCode.Unauthorized);
         public static readonly ErrorCode InvalidToken = new ErrorCode(1004, "Invalid Token", HttpStatusCode.BadRequest);
         public static readonly ErrorCode NotFound = new ErrorCode(1005, "Not Found", HttpStatusCode.NotFound);
+        public static readonly ErrorCode InvalidFile = new ErrorCode(1006, "Invalid File", HttpStatusCode.BadRequest);
+        public static readonly ErrorCode FileNotFound = new ErrorCode(1007, "File Not Found", HttpStatusCode.NotFound);
+        public static readonly ErrorCode UploadFailed = new ErrorCode(1008, "Upload Fail", HttpStatusCode.BadRequest);
     }
    
 }
