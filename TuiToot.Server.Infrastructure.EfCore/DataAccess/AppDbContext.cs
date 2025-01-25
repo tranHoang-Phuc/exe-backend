@@ -17,6 +17,10 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
 
         public DbSet<ApplicationUser> ApplicationUsers { get; set; }
         public DbSet<InvalidToken> InvalidTokens { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<BagType> BagTypes { get; set; }
+        public DbSet<Product> Products { get; set; }
+        public DbSet<TransactionPayment> Transactions { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -125,6 +129,26 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
                 entity.HasMany<Product>(o => o.Products)
                       .WithOne(p => p.Order)
                       .HasForeignKey(p => p.OrderId);
+            });
+
+            builder.Entity<TransactionPayment>(entity =>
+            {
+                entity.ToTable("TransactionPayment");
+                entity.HasKey(e => e.Id);
+                entity.Property(e=> e.Id)
+                    .ValueGeneratedOnAdd();
+                entity.Property(e => e.OrderId)
+                    .IsRequired();
+                entity.Property(e => e.ShippingCost)
+                    .IsRequired();
+                entity.Property(e => e.CreatedAt)
+                    .HasDefaultValueSql("GETDATE()").IsRequired();
+                entity.Property(e => e.UpdatedAt)
+                    .HasDefaultValueSql("GETDATE()").IsRequired();
+                entity.HasOne<Order>(t => t.Order)
+                    .WithOne(o => o.Transaction)
+                    .HasForeignKey<TransactionPayment>(t => t.OrderId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

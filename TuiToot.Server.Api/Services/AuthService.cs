@@ -12,6 +12,7 @@ namespace TuiToot.Server.Api.Services
     {
 
         private readonly IUnitOfWork _unitOfWork;
+
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IJwtTokenGenerator _jwtTokenGenerator;
 
@@ -75,6 +76,7 @@ namespace TuiToot.Server.Api.Services
             };
 
             var result = await _userManager.CreateAsync(user, request.Password);
+            await _userManager.AddToRoleAsync(user, "User");
             if (!result.Succeeded)
             {
                 throw new AppException(ErrorCode.UserExisted);

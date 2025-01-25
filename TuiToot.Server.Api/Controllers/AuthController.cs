@@ -47,7 +47,7 @@ namespace TuiToot.Server.Api.Controllers
             {
                 Data = response
             };
-            
+           
             return Ok(baseResponse);
         }
 
