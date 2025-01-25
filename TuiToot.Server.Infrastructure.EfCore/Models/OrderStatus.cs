@@ -8,8 +8,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.Models
 {
     public enum OrderStatus
     {
-        Pending,
-        Deposited,
+        NeedToPay,
         Processing,
         Shipped,
         Delivered,

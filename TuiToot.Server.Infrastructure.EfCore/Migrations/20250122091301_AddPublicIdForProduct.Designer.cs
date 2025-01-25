@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TuiToot.Server.Infrastructure.EfCore.DataAccess;
 
@@ -11,9 +12,10 @@ using TuiToot.Server.Infrastructure.EfCore.DataAccess;
 namespace TuiToot.Server.Infrastructure.EfCore.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250122091301_AddPublicIdForProduct")]
+    partial class AddPublicIdForProduct
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -267,7 +269,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("BagTypes");
+                    b.ToTable("BagType");
                 });
 
             modelBuilder.Entity("TuiToot.Server.Infrastructure.EfCore.Models.DeliveryAddress", b =>
@@ -339,10 +341,6 @@ namespace TuiToot.Server.Infrastructure.EfCore.Migrations
                     b.Property<int>("OrderStatus")
                         .HasColumnType("int");
 
-                    b.Property<string>("TransactionId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<DateTime>("UpdatedAt")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
@@ -354,7 +352,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.Migrations
 
                     b.HasIndex("DeliveryAddressId");
 
-                    b.ToTable("Orders");
+                    b.ToTable("Order");
                 });
 
             modelBuilder.Entity("TuiToot.Server.Infrastructure.EfCore.Models.Product", b =>
@@ -390,41 +388,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.Migrations
 
                     b.HasIndex("OrderId");
 
-                    b.ToTable("Products");
-                });
-
-            modelBuilder.Entity("TuiToot.Server.Infrastructure.EfCore.Models.TransactionPayment", b =>
-                {
-                    b.Property<string>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETDATE()");
-
-                    b.Property<string>("OrderId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<decimal>("ProductCost")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<decimal>("ShippingCost")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETDATE()");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("OrderId")
-                        .IsUnique();
-
-                    b.ToTable("TransactionPayment", (string)null);
+                    b.ToTable("Product");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
@@ -527,17 +491,6 @@ namespace TuiToot.Server.Infrastructure.EfCore.Migrations
                     b.Navigation("Order");
                 });
 
-            modelBuilder.Entity("TuiToot.Server.Infrastructure.EfCore.Models.TransactionPayment", b =>
-                {
-                    b.HasOne("TuiToot.Server.Infrastructure.EfCore.Models.Order", "Order")
-                        .WithOne("Transaction")
-                        .HasForeignKey("TuiToot.Server.Infrastructure.EfCore.Models.TransactionPayment", "OrderId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Order");
-                });
-
             modelBuilder.Entity("TuiToot.Server.Infrastructure.EfCore.Models.ApplicationUser", b =>
                 {
                     b.Navigation("DeliveryAddresses");
@@ -558,9 +511,6 @@ namespace TuiToot.Server.Infrastructure.EfCore.Migrations
             modelBuilder.Entity("TuiToot.Server.Infrastructure.EfCore.Models.Order", b =>
                 {
                     b.Navigation("Products");
-
-                    b.Navigation("Transaction")
-                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

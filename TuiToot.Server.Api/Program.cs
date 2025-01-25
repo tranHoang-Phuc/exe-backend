@@ -1,13 +1,15 @@
-using CloudinaryDotNet;
+    using CloudinaryDotNet;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 using TuiToot.Server.Api.Cores;
 using TuiToot.Server.Api.Exceptions;
+using TuiToot.Server.Api.Filter;
 using TuiToot.Server.Api.Services;
 using TuiToot.Server.Api.Services.IServices;
 using TuiToot.Server.Infrastructure.EfCore.DataAccess;
@@ -18,7 +20,7 @@ namespace TuiToot.Server.Api
 {
     public class Program
     {
-        public static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
@@ -29,7 +31,7 @@ namespace TuiToot.Server.Api
             builder.Services.Configure<JwtOptions>(
                 builder.Configuration.GetSection("ApiSetting:JwtOptions"));
             builder.Services.Configure<CloudinarySettings>(
-                builder.Configuration.GetSection("CloudinarySettings")
+                builder.Configuration.GetSection("Cloudinary")
                 );
 
             builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
@@ -37,6 +39,7 @@ namespace TuiToot.Server.Api
                .AddDefaultTokenProviders();
             
             builder.Services.AddHttpContextAccessor();
+            builder.Services.AddHttpClient();
             builder.Services.AddControllers();
             builder.Services.AddAuthentication(options =>
             {
@@ -93,7 +96,11 @@ namespace TuiToot.Server.Api
             });
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo { Title = "ToteBag", Version = "v1" });
+                c.OperationFilter<AddFileUploadSupportFilter>();
+            });
 
             // Register services
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
@@ -109,6 +116,8 @@ namespace TuiToot.Server.Api
             builder.Services.AddScoped<IBagTypeRepository, BagTypeRepository>();
             builder.Services.AddScoped<ICloudaryService, CloudaryService>();
             builder.Services.AddScoped<IProductRepository, ProductRepository>();
+            builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
+            builder.Services.AddScoped<ITransactionService, TransactionService>();
 
 
             builder.Services.AddSingleton(provider =>
@@ -130,6 +139,8 @@ namespace TuiToot.Server.Api
                     await handler.InvokeAsync(context);
                 });
             });
+
+            
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -141,8 +152,56 @@ namespace TuiToot.Server.Api
             app.UseAuthorization();
             app.MapControllers();
 
-
+            await AddDefault(app);
             app.Run();
+
+        }
+
+        private static async Task AddDefault(WebApplication app)
+        {
+            using (var scope = app.Services.CreateScope())
+            {
+                var services = scope.ServiceProvider;
+
+                try
+                {
+                    var roleManager = services.GetRequiredService<RoleManager<IdentityRole>>();
+                    if (!roleManager.Roles.Any())
+                    {
+                        await roleManager.CreateAsync(new IdentityRole("USER"));
+                        await roleManager.CreateAsync(new IdentityRole("ADMIN"));
+                    }
+
+                    var userManager = services.GetRequiredService<UserManager<ApplicationUser>>();
+                    if (!userManager.Users.Any())
+                    {
+                        var adminUser = new ApplicationUser
+                        {
+                            Name = "Super Admin",
+                            UserName = "phucthhe172242@fpt.edu.vn",
+                            Email = "phucthhe172242@fpt.edu.vn",
+                            Phone = "0123456789",
+                            Address = "Ha Noi",
+                            NormalizedEmail = "phucthhe172242@fpt.edu.vn".ToUpper()
+                        };
+
+                        var createResult = await userManager.CreateAsync(adminUser, "@Happy3115");
+                        // Account super  Admin:
+                        // phucthhe172242@fpt.edu.vn 
+                        // @Happy3115
+                        if (createResult.Succeeded)
+                        {
+                            var addToRoleResult = await userManager.AddToRoleAsync(adminUser, "ADMIN");
+                            
+                        }
+                        
+                    }
+                }
+                catch (Exception ex)
+                {
+                    throw new AppException(ErrorCode.UncategorizedException);
+                }
+            }
         }
     }
 }

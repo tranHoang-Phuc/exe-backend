@@ -20,7 +20,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.Repository
             _dbSet = context.Set<TEntity>();
         }
 
-        public async Task AddAsync(TEntity entity)
+        public async Task AddAsync(TEntity entity) 
         {
             await _dbSet.AddAsync(entity);
         }
@@ -29,7 +29,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.Repository
         {
             await _dbSet.AddRangeAsync(entities);
         }
-
+                                                    
         public async Task DeleteAsync(TEntity entity)
         {
             await Task.Run(() => _dbSet.Remove(entity));
@@ -44,6 +44,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.Repository
         {
             return await Task.Run(() => _dbSet.Where(condition));
         }
+
         public async Task<IQueryable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? filter = null, string? includeProperties = null)
         {
             IQueryable<TEntity> query = _dbSet;
@@ -71,5 +72,6 @@ namespace TuiToot.Server.Infrastructure.EfCore.Repository
             _context.Entry(entity).State = EntityState.Modified;
             return Task.CompletedTask;
         }
+
     }
 }

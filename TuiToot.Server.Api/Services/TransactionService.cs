@@ -1,0 +1,75 @@
+﻿using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using TuiToot.Server.Api.Dtos.Response;
+using TuiToot.Server.Api.Exceptions;
+using TuiToot.Server.Api.Services.IServices;
+using TuiToot.Server.Infrastructure.EfCore.DataAccess;
+
+namespace TuiToot.Server.Api.Services
+{
+    public class TransactionService : ITransactionService
+    {
+        private readonly  IUnitOfWork _unitOfWork;
+        private readonly  IHttpContextAccessor _httpContextAccessor;
+
+        public TransactionService(IUnitOfWork unitOfWork, IHttpContextAccessor httpContextAccessor)
+        {
+            _unitOfWork = unitOfWork;
+            _httpContextAccessor = httpContextAccessor;
+        }
+        public async Task<IEnumerable<TransactionResponse>> GetAll()
+        {
+            var userId = GetUserIdFromToken();
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new AppException(ErrorCode.Unauthorized);
+            }
+
+            // Fetch transactions with related Orders and Products
+            var transactions = await _unitOfWork.TransactionRepository.GetAllAsync(
+                t => t.Order.ApplicationUserId == userId,
+                "Order"
+            );
+
+            // Transform data into TransactionResponse
+            var response = transactions.Select(t => new TransactionResponse
+            {
+                Id = t.Id,               
+                ShippingCost = t.ShippingCost,
+                ProductCost = t.ProductCost,
+                CreatedAt = t.CreatedAt,
+                OrderId = t.Order.Id,
+                Status = t.Order.OrderStatus
+            }).ToList();
+
+            return response;
+        }
+
+        public async Task<IEnumerable<TransactionResponse>> SearchByOrderId(string orderId)
+        {
+            var orders = await _unitOfWork.OrderRepository
+                .GetAllAsync(o => o.Id.Contains(orderId), "Transaction");
+            var transactions = new List<TransactionResponse>();
+            foreach (var order in orders)
+            {
+                var response = new TransactionResponse
+                {
+                    Id = order.Transaction.Id,
+                    ShippingCost = order.Transaction.ShippingCost,
+                    ProductCost = order.Transaction.ProductCost,
+                    CreatedAt = order.Transaction.CreatedAt,
+                    OrderId = order.Id,
+                    Status = order.OrderStatus
+                };
+                transactions.Add(response);
+            }
+            return transactions;
+        }
+
+        private string GetUserIdFromToken()
+        {
+            var user = _httpContextAccessor.HttpContext?.User;
+            return user?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        }
+    }
+}

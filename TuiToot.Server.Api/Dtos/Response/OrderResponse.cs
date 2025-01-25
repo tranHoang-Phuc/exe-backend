@@ -2,14 +2,12 @@
 
 namespace TuiToot.Server.Api.Dtos.Response
 {
-    public class OrderCreationResponse
+    public class OrderResponse
     {
         public string Id { get; set; }
         public string ApplicationUserId { get; set; }
-        public string DeliveryAddressId { get; set; }
-        public decimal ShippingCost { get; set; }
+        public string DetailAddress { get; set; }
         public OrderStatus OrderStatus { get; set; }
-        public List<ProductCreationResponse> Products { get; set; }
-
+        public IEnumerable<ProductResponse> Products { get; set; }
     }
 }
