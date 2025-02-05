@@ -20,6 +20,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
         private IOrderRepository _orderRepository;
         private IBagTypeRepository _bagTypeRepository;
         private ITransactionRepository _transactionRepository;
+        private IAvaliblreProductRepository _avaliblreProductRepository;
         public UnitOfWork(AppDbContext context)
         {
             _context = context;
@@ -40,6 +41,8 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
         public IProductRepository ProductRepository => _productRepository ??= new ProductRepository(_context);
 
         public ITransactionRepository TransactionRepository => _transactionRepository ??= new TransactionRepository(_context);
+
+        public IAvaliblreProductRepository AvaliblreProductRepository => _avaliblreProductRepository ??= new AvalibleProductRepository(_context);
 
         public async Task BeginTransactionAsync()
         {

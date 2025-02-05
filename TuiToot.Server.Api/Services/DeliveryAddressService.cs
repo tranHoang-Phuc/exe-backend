@@ -39,11 +39,20 @@ namespace TuiToot.Server.Api.Services
             await _unitOfWork.SaveChangesAsync();
             return new DeliveryAddressResponse
             {
+                Id = deliveryAddress.Id,
                 ProvinceId = deliveryAddress.ProvinceId,
                 DistrictId = deliveryAddress.DistrictId,
                 WardId = deliveryAddress.WardId,
                 DetailAddress = deliveryAddress.DetailAddress
             };
+        }
+
+        public async Task DeleteAddress(string id)
+        {
+            var address = await _unitOfWork.DeliveryAddressRepository.GetAsync(Guid.Parse(id));
+            await _unitOfWork.DeliveryAddressRepository.DeleteAsync(address);
+            await _unitOfWork.SaveChangesAsync();
+
         }
 
         public async Task<IEnumerable<DeliveryAddressResponse>> GetAllAsync()
@@ -60,6 +69,7 @@ namespace TuiToot.Server.Api.Services
             }
             var response = deliveryAddresses.Select(da => new DeliveryAddressResponse
             {
+                Id = da.Id,
                 ProvinceId = da.ProvinceId,
                 DistrictId = da.DistrictId,
                 WardId = da.WardId,

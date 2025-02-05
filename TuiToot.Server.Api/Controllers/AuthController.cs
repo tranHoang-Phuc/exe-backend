@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TuiToot.Server.Api.Cores;
 using TuiToot.Server.Api.Dtos.Request;
 using TuiToot.Server.Api.Dtos.Response;
@@ -36,7 +37,7 @@ namespace TuiToot.Server.Api.Controllers
             {
                 Data = response
             };
-            return CreatedAtAction(nameof(RegisterAsync), baseResponse);
+            return Ok(baseResponse);
         }
 
         [HttpPost("logout")]
@@ -52,6 +53,7 @@ namespace TuiToot.Server.Api.Controllers
         }
 
         [HttpPost("introspect")]
+        [Authorize]
         public async Task<IActionResult> Introspect([FromBody] IntrospectRequest request)
         {
             IntrospectResponse response = await _authService.IntrospectAsync(request.Token);

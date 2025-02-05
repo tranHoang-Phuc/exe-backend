@@ -34,6 +34,54 @@ namespace TuiToot.Server.Api.Services
             _httpClientFactory = httpClientFactory;
             _configuration = configuration;
         }
+
+        public async Task<OrderResponse> CreateAvalibleProductOrder(AvalibleProductOrderCreation request)
+        {
+            var shippingAddressList = await _unitOfWork.DeliveryAddressRepository
+                .FindAsync(d => d.Id == request.DeliveryAddressId);
+            var shippingAddress = shippingAddressList.FirstOrDefault();
+            if (shippingAddress == null)
+            {
+                throw new AppException(ErrorCode.NotFound);
+            }
+
+            // get shipping cost
+            var client = _httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.Add("token", _configuration["GHNApi:Token"]);
+            client.DefaultRequestHeaders.Add("shop_id", _configuration["GHNApi:ShopId"]);
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            var queryParams = new Dictionary<string, string>()
+            {
+                {"service_id", _configuration["GHNApi:ServiceId"] },
+                {"insurance_value", _configuration["GHNApi:InsuranceValue"] },
+                {"coupon", "" },
+                {"to_district_id", shippingAddress.DistrictId.ToString() },
+                {"from_district_id", _configuration["GHNApi:FromDistrictId"] },
+                {"weight", _configuration["GHNApi:Weight"] },
+                {"length", _configuration["GHNApi:Length"] },
+                {"width", _configuration["GHNApi:Width"] },
+                {"height",  _configuration["GHNApi:Height"] }
+            };
+
+            var url = QueryHelpers.AddQueryString(_configuration["GHNApi:FeeUrl"], queryParams);
+            var response = await client.GetAsync(url);
+            string jsonData = await response.Content.ReadAsStringAsync();
+
+            var deserializedResponse = JsonConvert.DeserializeObject<BaseResponse<ShippingResponse>>(jsonData);
+
+
+            var ids = request.ProductOrders.Select(p => p.ProductId).ToList();
+            var avalibleProducts = _unitOfWork.AvaliblreProductRepository.GetAllAsync(a => ids.Contains(a.Id));
+            var userId = GetUserIdFromToken();
+            var order = new Order
+            {
+                Id = Guid.NewGuid().ToString(),
+                ApplicationUserId = userId,
+            };
+            return null;
+        }
+
         public async Task<OrderCreationResponse> CreateOrder(OrderCreationRequest orderRequest)
         {
             var shippingAddressList = await _unitOfWork.DeliveryAddressRepository

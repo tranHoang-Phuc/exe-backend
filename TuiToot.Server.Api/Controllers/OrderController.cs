@@ -52,5 +52,10 @@ namespace TuiToot.Server.Api.Controllers
             return Ok(baseResponse);
         }
 
+        [HttpPost("avalibleProduct")]
+        public Task<IActionResult> CreateAvalibleProductOrder(AvalibleProductOrderCreation request)
+        {
+            return null;
+        }
     }
 }

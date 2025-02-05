@@ -7,5 +7,7 @@ namespace TuiToot.Server.Api.Services.IServices
     {
         Task<DeliveryAddressResponse> CreateAsync(DeliveryAddressRequest request);
         Task<IEnumerable<DeliveryAddressResponse>> GetAllAsync();
+
+        Task DeleteAddress(string id);
     }
 }
