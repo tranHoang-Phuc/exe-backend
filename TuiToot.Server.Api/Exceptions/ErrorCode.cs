@@ -23,6 +23,7 @@ namespace TuiToot.Server.Api.Exceptions
         public static readonly ErrorCode InvalidFile = new ErrorCode(1006, "Invalid File", HttpStatusCode.BadRequest);
         public static readonly ErrorCode FileNotFound = new ErrorCode(1007, "File Not Found", HttpStatusCode.NotFound);
         public static readonly ErrorCode UploadFailed = new ErrorCode(1008, "Upload Fail", HttpStatusCode.BadRequest);
+        public static readonly ErrorCode ConflictData = new ErrorCode(1009, "Data Conflict", HttpStatusCode.Conflict);
     }
    
 }

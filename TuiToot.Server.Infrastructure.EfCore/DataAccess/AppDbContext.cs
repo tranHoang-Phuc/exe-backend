@@ -21,6 +21,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
         public DbSet<BagType> BagTypes { get; set; }
         public DbSet<Product> Products { get; set; }
         public DbSet<TransactionPayment> Transactions { get; set; }
+        public DbSet<AvalibleProduct> AvalibleProducts { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -39,7 +40,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
             {
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Id)
-                      .ValueGeneratedOnAdd(); 
+                      .ValueGeneratedOnAdd();
                 entity.Property(e => e.Token)
                       .IsRequired();
             });
@@ -135,7 +136,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
             {
                 entity.ToTable("TransactionPayment");
                 entity.HasKey(e => e.Id);
-                entity.Property(e=> e.Id)
+                entity.Property(e => e.Id)
                     .ValueGeneratedOnAdd();
                 entity.Property(e => e.OrderId)
                     .IsRequired();
@@ -149,6 +150,23 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
                     .WithOne(o => o.Transaction)
                     .HasForeignKey<TransactionPayment>(t => t.OrderId)
                     .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            builder.Entity<AvalibleProduct>(entity =>
+            {
+                entity.HasKey(e => e.Id);
+                entity.Property(e => e.Id)
+                      .ValueGeneratedOnAdd();
+                entity.Property(e => e.Name)
+                .IsRequired();
+                entity.Property(e => e.Price).IsRequired();
+                entity.Property(e => e.ImageUrl).IsRequired();
+                entity.Property(e => e.PreviewUrl).IsRequired();
+                entity.Property(e => e.UnitsInStock).IsRequired();
+                entity.Property(e => e.CreatedAt)
+                      .HasDefaultValueSql("GETDATE()").IsRequired();
+                entity.Property(e => e.UpdatedAt)
+                        .HasDefaultValueSql("GETDATE()").IsRequired();
             });
         }
     }

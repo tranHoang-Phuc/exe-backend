@@ -17,6 +17,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
         IBagTypeRepository BagTypeRepository { get; }
         IProductRepository ProductRepository { get; }
         ITransactionRepository TransactionRepository { get; }
+        IAvaliblreProductRepository AvaliblreProductRepository { get; }
         Task<int> SaveChangesAsync();
         Task BeginTransactionAsync();
         Task CommitTransactionAsync();
