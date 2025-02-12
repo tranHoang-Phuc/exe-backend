@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TuiToot.Server.Infrastructure.EfCore.DataAccess;
 
@@ -11,9 +12,10 @@ using TuiToot.Server.Infrastructure.EfCore.DataAccess;
 namespace TuiToot.Server.Infrastructure.EfCore.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250205112647_AddPhoneAddress")]
+    partial class AddPhoneAddress
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -581,7 +583,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.Migrations
             modelBuilder.Entity("TuiToot.Server.Infrastructure.EfCore.Models.TransactionPayment", b =>
                 {
                     b.HasOne("TuiToot.Server.Infrastructure.EfCore.Models.Order", "Order")
-                        .WithOne("TransactionPayment")
+                        .WithOne("Transaction")
                         .HasForeignKey("TuiToot.Server.Infrastructure.EfCore.Models.TransactionPayment", "OrderId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -610,7 +612,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.Migrations
                 {
                     b.Navigation("Products");
 
-                    b.Navigation("TransactionPayment")
+                    b.Navigation("Transaction")
                         .IsRequired();
                 });
 #pragma warning restore 612, 618

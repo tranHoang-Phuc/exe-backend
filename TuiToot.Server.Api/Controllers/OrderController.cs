@@ -40,6 +40,16 @@ namespace TuiToot.Server.Api.Controllers
             };
             return Ok(baseResponse);
         }
+        [HttpGet]
+        public async Task<IActionResult> GetOrders()
+        {
+            var response = await _orderService.GetOrders();
+            var baseResponse = new BaseResponse<List<OrderResponse>>
+            {
+                Data = response
+            };
+            return Ok(baseResponse);
+        }
 
         [HttpPost("status")]
         public async Task<IActionResult> UpdateOrderStatus([FromBody]UpdateOrderStatus request)

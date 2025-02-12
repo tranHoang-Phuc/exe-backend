@@ -37,7 +37,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.Repository
 
         public async Task DeleteAsync(Guid id)
         {
-            await Task.Run(async () => _dbSet.Remove(await GetAsync(id)));
+            await Task.Run(async () => _dbSet.Remove(await GetAsync(id.ToString())));
         }
 
         public async Task<IEnumerable<TEntity>> FindAsync(Func<TEntity, bool> condition)
@@ -62,7 +62,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.Repository
             return await Task.Run(() => query);
         }
 
-        public async Task<TEntity> GetAsync(Guid id)
+        public async Task<TEntity> GetAsync(string id)
         {
             return await _dbSet.FindAsync(id);
         }

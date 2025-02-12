@@ -9,5 +9,6 @@ namespace TuiToot.Server.Api.Dtos.Response
         public string DetailAddress { get; set; }
         public OrderStatus OrderStatus { get; set; }
         public IEnumerable<ProductResponse> Products { get; set; }
+        public TransactionResponse Transaction { get; set; }
     }
 }

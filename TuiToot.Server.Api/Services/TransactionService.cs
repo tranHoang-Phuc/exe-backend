@@ -4,6 +4,7 @@ using TuiToot.Server.Api.Dtos.Response;
 using TuiToot.Server.Api.Exceptions;
 using TuiToot.Server.Api.Services.IServices;
 using TuiToot.Server.Infrastructure.EfCore.DataAccess;
+using TuiToot.Server.Infrastructure.EfCore.Models;
 
 namespace TuiToot.Server.Api.Services
 {
@@ -43,6 +44,52 @@ namespace TuiToot.Server.Api.Services
             }).ToList();
 
             return response;
+        }
+
+        public async Task<TransactionResponse> GetById(string transactionId)
+        {
+            var userId = GetUserIdFromToken();
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new AppException(ErrorCode.Unauthorized);
+            }
+            var response = await _unitOfWork.TransactionRepository.GetAsync(transactionId);
+
+            if (response == null)
+            {
+                throw new AppException(ErrorCode.NotFound);
+            }
+            return new TransactionResponse
+            {
+                Id = response.Id,
+                ShippingCost = response.ShippingCost,
+                ProductCost = response.ProductCost,
+                CreatedAt = response.CreatedAt,
+                OrderId = response.OrderId,
+            };
+        }
+
+        public async Task<TransactionResponse> GetByOrderId(string orderId)
+        {
+            var userId = GetUserIdFromToken();
+            if (string.IsNullOrEmpty(userId))
+            {
+                throw new AppException(ErrorCode.Unauthorized);
+            }
+            var response = (await _unitOfWork.TransactionRepository
+                .GetAllAsync(t => t.OrderId == orderId, "Order"))
+                .FirstOrDefault();
+            if (response == null) { 
+                throw new AppException(ErrorCode.NotFound);
+            }
+            return new TransactionResponse
+            {
+                Id = response.Id,
+                ShippingCost = response.ShippingCost,
+                ProductCost = response.ProductCost,
+                CreatedAt = response.CreatedAt,
+                OrderId = response.OrderId,
+            };
         }
 
         public async Task<IEnumerable<TransactionResponse>> SearchByOrderId(string orderId)

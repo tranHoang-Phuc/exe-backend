@@ -78,7 +78,7 @@ namespace TuiToot.Server.Api.Services
 
         public async Task<AvalibleProductResponse> GetById(string id)
         {
-            var avalibleProduct = await _unitOfWork.AvaliblreProductRepository.GetAsync(Guid.Parse(id));
+            var avalibleProduct = await _unitOfWork.AvaliblreProductRepository.GetAsync(id);
             return new AvalibleProductResponse
             {
                 Id = avalibleProduct.Id,
@@ -92,7 +92,7 @@ namespace TuiToot.Server.Api.Services
 
         public async Task<AvalibleProductResponse> Update(string id, UpdatedAvaliableProduct data)
         {
-            var avalibleProduct = await _unitOfWork.AvaliblreProductRepository.GetAsync(Guid.Parse(id));
+            var avalibleProduct = await _unitOfWork.AvaliblreProductRepository.GetAsync(id);
             if (id != data.Id)
             {
                 throw new AppException(ErrorCode.ConflictData);

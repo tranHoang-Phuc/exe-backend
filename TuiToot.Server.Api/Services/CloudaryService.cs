@@ -55,9 +55,8 @@ namespace TuiToot.Server.Api.Services
 
         private bool IsValidImage(IFormFile file)
         {
-            var validImageTypes = new[] { "image/jpeg", "image/png" };
-            var validExtensions = new[] { ".jpg", ".jpeg", ".png"};
-
+            var validImageTypes = new[] { "image/jpeg", "image/png", "image/gif" };
+            var validExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
             var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
             return validImageTypes.Contains(file.ContentType) && validExtensions.Contains(extension);
         }

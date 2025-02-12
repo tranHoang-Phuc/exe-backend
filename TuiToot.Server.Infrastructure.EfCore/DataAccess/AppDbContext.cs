@@ -58,6 +58,8 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
                         .IsRequired();
                 entity.Property(e => e.DetailAddress)
                         .IsRequired();
+                entity.Property(e => e.Phone)
+                        .IsRequired();
                 entity.HasOne<ApplicationUser>(a => a.ApplicationUser)
                         .WithMany(d => d.DeliveryAddresses)
                         .HasForeignKey(d => d.ApplicationUserId)
@@ -109,8 +111,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
                       .ValueGeneratedOnAdd();
                 entity.Property(e => e.ApplicationUserId)
                         .IsRequired();
-                entity.Property(e => e.DeliveryAddressId)
-                        .IsRequired();
+                entity.Property(e => e.DeliveryAddressId);
                 entity.Property(e => e.OrderStatus)
                         .IsRequired();
                 entity.Property(e => e.CreatedAt)
@@ -125,7 +126,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
                 entity.HasOne<DeliveryAddress>(o => o.DeliveryAddress)
                       .WithMany(d => d.Orders)
                       .HasForeignKey(o => o.DeliveryAddressId)
-                      .OnDelete(DeleteBehavior.Restrict);
+                      .OnDelete(DeleteBehavior.SetNull);
 
                 entity.HasMany<Product>(o => o.Products)
                       .WithOne(p => p.Order)

@@ -15,7 +15,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.Repository
         Task DeleteAsync(Guid id);
         Task AddRangeAsync(IEnumerable<TEntity> entities);
         Task<IQueryable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>>? filter = null, string? includeProperties = null);
-        Task<TEntity> GetAsync(Guid id);
+        Task<TEntity> GetAsync(string id);
         Task<IEnumerable<TEntity>> FindAsync(Func<TEntity, bool> condition);
     }
 }

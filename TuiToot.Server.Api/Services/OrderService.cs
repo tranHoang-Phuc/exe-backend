@@ -186,6 +186,8 @@ namespace TuiToot.Server.Api.Services
             {
                 throw new AppException(ErrorCode.NotFound);
             }
+            var transaction = await _unitOfWork.TransactionRepository.GetAsync(order.TransactionId);
+            order.Transaction = transaction;
             var listProduct = await _unitOfWork.ProductRepository.GetAllAsync(p => p.OrderId == id, "BagType");
             return new OrderResponse
             {
@@ -200,9 +202,56 @@ namespace TuiToot.Server.Api.Services
                     BagTypeName = p.BagType.Name,
                     Url = p.Url,
                     Price = p.BagType.Price
-                }).ToList()
+                }).ToList(),
+                Transaction = new TransactionResponse
+                {
+                    Id = order.TransactionId,
+                    ShippingCost = order.Transaction.ShippingCost,
+                    ProductCost = order.Transaction.ProductCost,
+
+                }
             };
 
+        }
+
+        public async Task<List<OrderResponse>> GetOrders()
+        {
+            var userId = GetUserIdFromToken();
+            if (userId == null)
+            {
+                throw new AppException(ErrorCode.Unauthorized);
+            }
+            
+            var orders = await _unitOfWork.OrderRepository.GetAllAsync(o => o.ApplicationUserId == userId, "DeliveryAddress,Products");
+            await orders.ForEachAsync(async o =>
+            {
+                var transaction = await _unitOfWork.TransactionRepository.GetAsync(o.TransactionId);
+                o.Transaction = transaction;
+                var products = await _unitOfWork.ProductRepository.GetAllAsync(p => p.OrderId == o.Id, "BagType");
+                o.Products = products.ToList();
+            });
+
+            return await orders.Select(o => new OrderResponse
+            {
+                Id = o.Id,
+                ApplicationUserId = o.ApplicationUserId,
+                DetailAddress = o.DeliveryAddress.DetailAddress,
+                OrderStatus = o.OrderStatus,
+                Products = o.Products.Select(p => new ProductResponse
+                {
+                    Id = p.Id,
+                    BagTypeId = p.BagTypeId,
+                    BagTypeName = p.BagType.Name,
+                    Url = p.Url,
+                    Price = p.BagType.Price
+                }).ToList(),
+                Transaction = new TransactionResponse
+                {
+                    Id = o.TransactionId,
+                    ShippingCost = o.Transaction.ShippingCost,
+                    ProductCost = o.Transaction.ProductCost,
+                }
+            }).ToListAsync();
         }
 
         public async Task<OrderResponse> UpdateOrderStatus(string id, OrderStatus status)

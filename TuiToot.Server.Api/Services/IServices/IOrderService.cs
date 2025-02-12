@@ -10,5 +10,6 @@ namespace TuiToot.Server.Api.Services.IServices
         Task<OrderResponse> GetOrder(string id);
         Task<OrderResponse> UpdateOrderStatus(string id, OrderStatus status);
         Task<OrderResponse> CreateAvalibleProductOrder(AvalibleProductOrderCreation request);
+        Task<List<OrderResponse>> GetOrders();
     }
 }

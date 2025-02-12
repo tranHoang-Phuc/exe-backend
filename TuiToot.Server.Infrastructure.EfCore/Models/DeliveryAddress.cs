@@ -13,6 +13,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.Models
         public int DistrictId { get; set; }
         public int WardId { get; set; }
         public string DetailAddress { get; set; }
+        public string Phone { get; set; }
         public string ApplicationUserId { get; set; }
         public virtual ApplicationUser ApplicationUser { get; set; }
         public virtual ICollection<Order> Orders { get; set; }

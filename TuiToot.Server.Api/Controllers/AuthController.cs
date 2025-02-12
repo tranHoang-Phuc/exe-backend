@@ -53,7 +53,6 @@ namespace TuiToot.Server.Api.Controllers
         }
 
         [HttpPost("introspect")]
-        [Authorize]
         public async Task<IActionResult> Introspect([FromBody] IntrospectRequest request)
         {
             IntrospectResponse response = await _authService.IntrospectAsync(request.Token);

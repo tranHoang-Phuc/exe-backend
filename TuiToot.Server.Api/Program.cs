@@ -128,6 +128,7 @@ namespace TuiToot.Server.Api
             builder.Services.AddScoped<IAvaliblreProductRepository, AvalibleProductRepository>();
             builder.Services.AddScoped<IAvalibleProductService, AvalibleProductService>();
             builder.Services.AddScoped<IProfileService, ProfileService>();
+            builder.Services.AddScoped<IBagTypeService, BagTypeService>();
 
             builder.Services.AddSingleton(provider =>
             {

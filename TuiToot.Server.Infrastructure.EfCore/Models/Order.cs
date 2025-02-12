@@ -11,7 +11,7 @@ namespace TuiToot.Server.Infrastructure.EfCore.Models
         public string Id { get; set; }
         public string ApplicationUserId { get; set; }
         public virtual ApplicationUser ApplicationUser { get; set; }
-        public string DeliveryAddressId { get; set; }
+        public string? DeliveryAddressId { get; set; }
         public virtual DeliveryAddress DeliveryAddress { get; set; }
         public string TransactionId { get; set; }
         public virtual TransactionPayment Transaction { get; set; }

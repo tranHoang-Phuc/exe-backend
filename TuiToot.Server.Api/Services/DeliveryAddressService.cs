@@ -33,6 +33,7 @@ namespace TuiToot.Server.Api.Services
                 ProvinceId = request.ProvinceId,
                 DistrictId = request.DistrictId,
                 WardId = request.WardId,
+                Phone = request.Phone,
                 DetailAddress = request.DetailAddress
             };
             await _unitOfWork.DeliveryAddressRepository.AddAsync(deliveryAddress);
@@ -43,14 +44,15 @@ namespace TuiToot.Server.Api.Services
                 ProvinceId = deliveryAddress.ProvinceId,
                 DistrictId = deliveryAddress.DistrictId,
                 WardId = deliveryAddress.WardId,
+                Phone = deliveryAddress.Phone,
                 DetailAddress = deliveryAddress.DetailAddress
             };
         }
 
         public async Task DeleteAddress(string id)
         {
-            var address = await _unitOfWork.DeliveryAddressRepository.GetAsync(Guid.Parse(id));
-            await _unitOfWork.DeliveryAddressRepository.DeleteAsync(address);
+            var address = await _unitOfWork.DeliveryAddressRepository.GetAllAsync(da => da.Id == id);
+            await _unitOfWork.DeliveryAddressRepository.DeleteAsync(address.First());
             await _unitOfWork.SaveChangesAsync();
 
         }
@@ -63,18 +65,16 @@ namespace TuiToot.Server.Api.Services
                 throw new AppException(ErrorCode.Unauthorized);
             }
             var deliveryAddresses = await _unitOfWork.DeliveryAddressRepository.FindAsync(da => da.ApplicationUserId == userId);
-            if (deliveryAddresses.Count() <= 0)
-            {
-                throw new AppException(ErrorCode.NotFound);
-            }
+            
             var response = deliveryAddresses.Select(da => new DeliveryAddressResponse
             {
                 Id = da.Id,
                 ProvinceId = da.ProvinceId,
                 DistrictId = da.DistrictId,
                 WardId = da.WardId,
+                Phone = da.Phone,
                 DetailAddress = da.DetailAddress
-            });
+            }).OrderBy(da => da.DetailAddress);
             return response;
         }
 

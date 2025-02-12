@@ -26,11 +26,34 @@ namespace TuiToot.Server.Api.Controllers
             };
             return Ok(baseResponse);
         }
-        [HttpGet("{orderIdSearchString}")]
+        [HttpGet("Order/{orderIdSearchString}")]
         public async Task<IActionResult> Search([FromRoute]string orderIdSearchString)
         {
             var response = await _transactionService.SearchByOrderId(orderIdSearchString);
             var baseResponse = new BaseResponse<IEnumerable<TransactionResponse>>
+            {
+                Data = response
+            };
+            return Ok(baseResponse);
+        }
+
+        [HttpGet("{transactionId}")]
+        public async Task<IActionResult> Get([FromRoute] string transactionId)
+        {
+            var response = await _transactionService.GetById(transactionId);
+            var baseResponse = new BaseResponse<TransactionResponse>
+            {
+                Data = response
+            };
+            return Ok(baseResponse);
+        }
+
+        [HttpGet("order/search/{orderId}")]
+        
+        public async Task<IActionResult> GetByOrderId(string orderId) 
+        { 
+            var response = await _transactionService.GetByOrderId(orderId);
+            var baseResponse = new BaseResponse<TransactionResponse>
             {
                 Data = response
             };
