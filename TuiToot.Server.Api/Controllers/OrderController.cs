@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TuiToot.Server.Api.Cores;
 using TuiToot.Server.Api.Dtos.Request;
 using TuiToot.Server.Api.Dtos.Response;
@@ -51,10 +52,22 @@ namespace TuiToot.Server.Api.Controllers
             return Ok(baseResponse);
         }
 
-        [HttpPost("status")]
+        [HttpPut("status")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> UpdateOrderStatus([FromBody]UpdateOrderStatus request)
         {
             var response = await _orderService.UpdateOrderStatus(request.OrderId, request.Status);
+            var baseResponse = new BaseResponse<bool>
+            {
+                Data = response
+            };  
+            return Ok(baseResponse);
+        }
+
+        [HttpPost("availableProduct")]
+        public async Task<IActionResult> CreateAvailableProductOrder([FromBody]AvalibleProductOrderCreation request)
+        {
+            var response = await _orderService.CreateAvailableProductOrder(request);
             var baseResponse = new BaseResponse<OrderResponse>
             {
                 Data = response
@@ -62,10 +75,16 @@ namespace TuiToot.Server.Api.Controllers
             return Ok(baseResponse);
         }
 
-        [HttpPost("avalibleProduct")]
-        public Task<IActionResult> CreateAvalibleProductOrder(AvalibleProductOrderCreation request)
+        [HttpGet("admin/{orderId}")]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> GetOrderAdmin(string orderId)
         {
-            return null;
+            var response = await _orderService.GetAdminOrder(orderId);
+            var baseResponse = new BaseResponse<AdminOrderResponse>
+            {
+                Data = response
+            };
+            return Ok(baseResponse);
         }
     }
 }

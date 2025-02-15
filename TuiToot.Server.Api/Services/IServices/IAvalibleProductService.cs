@@ -10,5 +10,6 @@ namespace TuiToot.Server.Api.Services.IServices
         Task<AvalibleProductResponse> Update(string id, UpdatedAvaliableProduct data);
         Task<AvalibleProductResponse> Create(AvalibleProductCreation avalibleProductCreation);
         Task<bool> Delete(string id);
+        Task<IEnumerable<AvalibleProductResponse>> GetByIds(string[] ids);
     }
 }

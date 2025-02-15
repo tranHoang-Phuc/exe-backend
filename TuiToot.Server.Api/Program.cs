@@ -1,4 +1,4 @@
-    using CloudinaryDotNet;
+﻿    using CloudinaryDotNet;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -197,16 +197,64 @@ namespace TuiToot.Server.Api
                             NormalizedEmail = "phucthhe172242@fpt.edu.vn".ToUpper()
                         };
 
+                        var secondAmdmin = new ApplicationUser
+                        {
+                            Name = "Quỳnh Chi",
+                            UserName = "chinqhs173012@fpt.edu.vn",
+                            Email = "chinqhs173012@fpt.edu.vn",
+                            Phone = "0123456789",
+                            Address = "Ha Noi",
+                            NormalizedEmail = "chinqhs173012@fpt.edu.vn".ToUpper()
+                        };
+
+                        var thirdAdmin = new ApplicationUser
+                        {
+                            Name = "Nhật Linh",
+                            UserName = "linhlnhs171514@fpt.edu.vn",
+                            Email = "linhlnhs171514@fpt.edu.vn",
+                            Phone = "0123456789",
+                            Address = "Ha Noi",
+                            NormalizedEmail = "linhlnhs171514@fpt.edu.vn".ToUpper()
+                        };
+
+                        var fourthAdmin = new ApplicationUser
+                        {
+                            Name = "Việt Cương",
+                            UserName = "cuonghvhs173028@fpt.edu.vn",
+                            Email = "cuonghvhs173028@fpt.edu.vn",
+                            Phone = "0123456789",
+                            Address = "Ha Noi",
+                            NormalizedEmail = "cuonghvhs173028@fpt.edu.vn".ToUpper()
+                        };
+
+                        var fifthAdmin = new ApplicationUser
+                        {
+                            Name = "Quang Long",
+                            UserName = "longdqhe173507@fpt.edu.vn",
+                            Email = "longdqhe173507@fpt.edu.vn",
+                            Phone = "0123456789",
+                            Address = "Ha Noi",
+                            NormalizedEmail = "longdqhe173507@fpt.edu.vn".ToUpper()
+                        };
+
                         var createResult = await userManager.CreateAsync(adminUser, "@Happy3115");
-                        // Account super  Admin:
-                        // phucthhe172242@fpt.edu.vn 
-                        // @Happy3115
+                        var createResult2 = await userManager.CreateAsync(secondAmdmin, "Chi1234@567");
+                        var createResult3 = await userManager.CreateAsync(thirdAdmin, "Linh567@123");
+                        var createResult4 = await userManager.CreateAsync(fourthAdmin, "Cuong789@567");
+                        var createResult5 = await userManager.CreateAsync(fifthAdmin, "Long567@789");                      
                         if (createResult.Succeeded)
                         {
                             var addToRoleResult = await userManager.AddToRoleAsync(adminUser, "ADMIN");
-                            
-                        }
-                        
+                            await userManager.AddToRoleAsync(adminUser, "USER");
+                            await userManager.AddToRoleAsync(secondAmdmin, "ADMIN");
+                            await userManager.AddToRoleAsync(secondAmdmin, "USER");
+                            await userManager.AddToRoleAsync(thirdAdmin, "ADMIN");
+                            await userManager.AddToRoleAsync(thirdAdmin, "USER");
+                            await userManager.AddToRoleAsync(fourthAdmin, "ADMIN");
+                            await userManager.AddToRoleAsync(fourthAdmin, "USER");
+                            await userManager.AddToRoleAsync(fifthAdmin, "ADMIN");
+                            await userManager.AddToRoleAsync(fifthAdmin, "USER");
+                        }                        
                     }
                 }
                 catch (Exception ex)

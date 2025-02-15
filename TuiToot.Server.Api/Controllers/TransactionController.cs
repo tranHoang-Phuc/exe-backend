@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TuiToot.Server.Api.Cores;
 using TuiToot.Server.Api.Dtos.Response;
 using TuiToot.Server.Api.Services.IServices;
@@ -17,6 +18,7 @@ namespace TuiToot.Server.Api.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> GetAll()
         {
             var response = await _transactionService.GetAll();
@@ -54,6 +56,18 @@ namespace TuiToot.Server.Api.Controllers
         { 
             var response = await _transactionService.GetByOrderId(orderId);
             var baseResponse = new BaseResponse<TransactionResponse>
+            {
+                Data = response
+            };
+            return Ok(baseResponse);
+        }
+
+        [HttpGet("search-transaction/{transactionId}")]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> GetByTransactionId(string transactionId)
+        {
+            var response = await _transactionService.SearchById(transactionId);
+            var baseResponse = new BaseResponse<List<TransactionResponse>>
             {
                 Data = response
             };

@@ -25,15 +25,11 @@ namespace TuiToot.Server.Api.Services
             {
                 throw new AppException(ErrorCode.Unauthorized);
             }
-
-            // Fetch transactions with related Orders and Products
             var transactions = await _unitOfWork.TransactionRepository.GetAllAsync(
                 t => t.Order.ApplicationUserId == userId,
                 "Order"
             );
-
-            // Transform data into TransactionResponse
-            var response = transactions.Select(t => new TransactionResponse
+            var response = await transactions.Select(t => new TransactionResponse
             {
                 Id = t.Id,               
                 ShippingCost = t.ShippingCost,
@@ -41,7 +37,7 @@ namespace TuiToot.Server.Api.Services
                 CreatedAt = t.CreatedAt,
                 OrderId = t.Order.Id,
                 Status = t.Order.OrderStatus
-            }).ToList();
+            }).OrderByDescending(t => t.CreatedAt).Take(100).ToListAsync();
 
             return response;
         }
@@ -90,6 +86,23 @@ namespace TuiToot.Server.Api.Services
                 CreatedAt = response.CreatedAt,
                 OrderId = response.OrderId,
             };
+        }
+
+        public async Task<List<TransactionResponse>> SearchById(string transactionId)
+        {
+            var transactions = await _unitOfWork.TransactionRepository.GetAllAsync(
+                t => t.Id.Contains(transactionId), "Order");
+            var response = transactions
+                .Select(t => new TransactionResponse
+            {
+                Id = t.Id,
+                ShippingCost = t.ShippingCost,
+                ProductCost = t.ProductCost,
+                CreatedAt = t.CreatedAt,
+                OrderId = t.Order.Id,
+                Status = t.Order.OrderStatus
+            }).OrderByDescending(t => t.CreatedAt).Take(100);
+            return await response.ToListAsync();
         }
 
         public async Task<IEnumerable<TransactionResponse>> SearchByOrderId(string orderId)

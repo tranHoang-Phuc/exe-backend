@@ -75,11 +75,20 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
                         .IsRequired();
                 entity.Property(e => e.Url)
                         .IsRequired();
+                entity.Property(e => e.PublicId).IsRequired(false);
                 entity.Property(e => e.Description);
                 entity.HasMany<Product>(e => e.Products)
                         .WithOne(p => p.BagType)
                         .HasForeignKey(p => p.BagTypeId)
                         .OnDelete(DeleteBehavior.Cascade);
+                entity.HasData(new BagType
+                {
+                    Id = "d38ad7f0-bac6-462c-8cf8-c7a424c19992",
+                    Name = "Tote  Vuông",
+                    Url = "https://res.cloudinary.com/dbrm5eowo/image/upload/v1737516248/totebag-light-new_large_gm07d2.jpg",
+                    Description = "Túi hình vuông",
+                    UnitsInStock = 20,
+                });
             });
 
             builder.Entity<Product>(entity =>
@@ -122,7 +131,6 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
                     .WithMany(a => a.Orders)
                     .HasForeignKey(o => o.ApplicationUserId)
                     .OnDelete(DeleteBehavior.Restrict);
-
                 entity.HasOne<DeliveryAddress>(o => o.DeliveryAddress)
                       .WithMany(d => d.Orders)
                       .HasForeignKey(o => o.DeliveryAddressId)
@@ -166,8 +174,6 @@ namespace TuiToot.Server.Infrastructure.EfCore.DataAccess
                 entity.Property(e => e.UnitsInStock).IsRequired();
                 entity.Property(e => e.CreatedAt)
                       .HasDefaultValueSql("GETDATE()").IsRequired();
-                entity.Property(e => e.UpdatedAt)
-                        .HasDefaultValueSql("GETDATE()").IsRequired();
             });
         }
     }

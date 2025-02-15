@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TuiToot.Server.Api.Cores;
+using TuiToot.Server.Api.Dtos.Request;
 using TuiToot.Server.Api.Dtos.Response;
 using TuiToot.Server.Api.Services;
 
@@ -26,10 +28,29 @@ namespace TuiToot.Server.Api.Controllers
             };
             return Ok(baseResponse);
         }
-        [HttpGet("Test")]
-        public IActionResult Test()
+
+        [HttpPost]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> Create([FromForm] BagTypeCreation bagTypeCreation)
         {
-            return Ok("<person><id>1</id><name>John Doe</name></person>");
+            var response = await _bagTypeService.Create(bagTypeCreation);
+            var baseResponse = new BaseResponse<BagTypeResponse>
+            {
+                Data = response
+            };
+            return Ok(baseResponse);
+        }
+
+        [HttpDelete("{id}")]
+        [Authorize(Roles = "ADMIN")]
+        public async Task<IActionResult> Delete([FromRoute]string id)
+        {
+            var response = await _bagTypeService.Delete(id);
+            var baseResponse = new BaseResponse<bool>
+            {
+                Data = response
+            };
+            return Ok(baseResponse);
         }
     }
 }

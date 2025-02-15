@@ -11,9 +11,9 @@ namespace TuiToot.Server.Infrastructure.EfCore.Models
         public string Id { get; set; }
         public string Name { get; set; }
         public string Url { get; set; }
+        public string PublicId { get; set; }
         public int UnitsInStock { get; set; }
         public decimal Price { get; set; }
-
         public string? Description { get; set; }
         public virtual ICollection<Product> Products { get; set; }
     }

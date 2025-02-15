@@ -8,8 +8,10 @@ namespace TuiToot.Server.Api.Services.IServices
     {
         Task<OrderCreationResponse> CreateOrder(OrderCreationRequest orderRequest);
         Task<OrderResponse> GetOrder(string id);
-        Task<OrderResponse> UpdateOrderStatus(string id, OrderStatus status);
+        Task<bool> UpdateOrderStatus(string id, OrderStatus status);
         Task<OrderResponse> CreateAvalibleProductOrder(AvalibleProductOrderCreation request);
         Task<List<OrderResponse>> GetOrders();
+        Task<OrderResponse> CreateAvailableProductOrder(AvalibleProductOrderCreation request);
+        Task<AdminOrderResponse> GetAdminOrder(string id);
     }
 }

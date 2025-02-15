@@ -35,6 +35,83 @@ namespace TuiToot.Server.Api.Services
             _configuration = configuration;
         }
 
+        public async Task<OrderResponse> CreateAvailableProductOrder(AvalibleProductOrderCreation request)
+        {
+            var userId = GetUserIdFromToken();
+            if (userId == null)
+            {
+                throw new AppException(ErrorCode.Unauthorized);
+            }
+            var requestOrder = request.ProductOrders;
+            List<Product> products = new List<Product>();
+            var order = new Order
+            {
+                Id = Guid.NewGuid().ToString(),
+                ApplicationUserId = userId,
+                DeliveryAddressId = request.DeliveryAddressId,
+                OrderStatus = OrderStatus.NeedToPay,
+            };
+            foreach (var productOrder in requestOrder)
+            {
+                var avalibleProduct = await _unitOfWork.AvaliblreProductRepository.GetAsync(productOrder.ProductId);
+                for (int i = 0; i < productOrder.Quantity; i++)
+                {
+                    var product = new Product
+                    {
+                        Id = Guid.NewGuid().ToString(),
+                        BagTypeId = productOrder.BagTypeId,
+                        Url = avalibleProduct.ImageUrl,
+                        PublicdId = avalibleProduct.PublicPreviewId,
+                        OrderId = order.Id
+
+                    };
+                    products.Add(product);
+                }
+            }
+            order.Products = products;
+            var transaction = new TransactionPayment
+            {
+                Id = Guid.NewGuid().ToString(),
+                ShippingCost = request.ShippingCost,
+                ProductCost = request.ProductPrice,
+                OrderId = order.Id
+            };
+            order.Transaction = transaction;
+            order.TransactionId = transaction.Id;
+            await _unitOfWork.BeginTransactionAsync();
+            await _unitOfWork.OrderRepository.AddAsync(order);
+            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.CommitTransactionAsync();
+            var deliveryAddress = await _unitOfWork.DeliveryAddressRepository.GetAsync(order.DeliveryAddressId);
+            order.DeliveryAddress = deliveryAddress;
+            var bagType = await _unitOfWork.BagTypeRepository.GetAsync(products.First().BagTypeId);
+            foreach (var p in order.Products)
+            {
+                p.BagType = bagType;
+            };
+            return new OrderResponse
+            {
+                Id = order.Id,
+                ApplicationUserId = order.ApplicationUserId,
+                DetailAddress = order.DeliveryAddress.DetailAddress,
+                OrderStatus = order.OrderStatus,
+                Products = order.Products.Select(p => new ProductResponse
+                {
+                    Id = p.Id,
+                    BagTypeId = p.BagTypeId,
+                    BagTypeName = p.BagType.Name,
+                    Url = p.Url,
+                    Price = p.BagType.Price
+                }).ToList(),
+                Transaction = new TransactionResponse
+                {
+                    Id = order.TransactionId,
+                    ShippingCost = order.Transaction.ShippingCost,
+                    ProductCost = order.Transaction.ProductCost
+                }
+            };
+        }
+
         public async Task<OrderResponse> CreateAvalibleProductOrder(AvalibleProductOrderCreation request)
         {
             var shippingAddressList = await _unitOfWork.DeliveryAddressRepository
@@ -123,8 +200,7 @@ namespace TuiToot.Server.Api.Services
             await _unitOfWork.BeginTransactionAsync();
             decimal totalCost = 0;
             foreach (var product in products)
-            {
-                
+            {              
                 var guid = Guid.NewGuid().ToString();
                 var responseCloudary = await _cloudaryService.UploadImage(product.Image, guid, "Products");
                 var bagType = await _unitOfWork.BagTypeRepository.FindAsync(b => b.Id == product.BagTypeId);
@@ -175,6 +251,42 @@ namespace TuiToot.Server.Api.Services
                     Price = p.BagType.Price,
                     ImageUrl = p.Url
                 }).ToList()
+            };
+        }
+
+        public async Task<AdminOrderResponse> GetAdminOrder(string id)
+        {
+            var orderList = await _unitOfWork.OrderRepository.GetAllAsync(o => o.Id == id, "DeliveryAddress,Products");
+            var order = orderList.FirstOrDefault();
+            if (order == null)
+            {
+                throw new AppException(ErrorCode.NotFound);
+            }
+            var transaction = await _unitOfWork.TransactionRepository.GetAsync(order.TransactionId);
+            order.Transaction = transaction;
+            var listProduct = await _unitOfWork.ProductRepository.GetAllAsync(p => p.OrderId == id, "BagType");
+            return new AdminOrderResponse
+            {
+                Id = order.Id,
+                ApplicationUserId = order.ApplicationUserId,
+                DetailAddress = order.DeliveryAddress.DetailAddress,
+                PhoneNumber = order.DeliveryAddress.Phone,
+                OrderStatus = order.OrderStatus,
+                Products = listProduct.Select(p => new ProductResponse
+                {
+                    Id = p.Id,
+                    BagTypeId = p.BagTypeId,
+                    BagTypeName = p.BagType.Name,
+                    Url = p.Url,
+                    Price = p.BagType.Price
+                }).ToList(),
+                Transaction = new TransactionResponse
+                {
+                    Id = order.TransactionId,
+                    ShippingCost = order.Transaction.ShippingCost,
+                    ProductCost = order.Transaction.ProductCost,
+
+                }
             };
         }
 
@@ -254,27 +366,13 @@ namespace TuiToot.Server.Api.Services
             }).ToListAsync();
         }
 
-        public async Task<OrderResponse> UpdateOrderStatus(string id, OrderStatus status)
+        public async Task<bool> UpdateOrderStatus(string id, OrderStatus status)
         {
             var orders = await _unitOfWork.OrderRepository.GetAllAsync(o => o.Id == id);
             var order = orders.First();
             order.OrderStatus = status;
             await _unitOfWork.SaveChangesAsync();
-            return new OrderResponse
-            {
-                Id = order.Id,
-                ApplicationUserId = order.ApplicationUserId,
-                DetailAddress = order.DeliveryAddress.DetailAddress,
-                OrderStatus = order.OrderStatus,
-                Products = order.Products.Select(p => new ProductResponse
-                {
-                    Id = p.Id,
-                    BagTypeId = p.BagTypeId,
-                    BagTypeName = p.BagType.Name,
-                    Url = p.Url,
-                    Price = p.BagType.Price
-                }).ToList()
-            };
+            return true;
         }
 
         private string GetUserIdFromToken()

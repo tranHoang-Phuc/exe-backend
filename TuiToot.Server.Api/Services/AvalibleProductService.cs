@@ -1,4 +1,5 @@
-﻿using SkiaSharp;
+﻿using Microsoft.EntityFrameworkCore;
+using SkiaSharp;
 using System.Drawing;
 using System.Net.Http;
 using TuiToot.Server.Api.Dtos.Request;
@@ -35,12 +36,8 @@ namespace TuiToot.Server.Api.Services
             var result = await _cloudaryService.UploadImage(avalibleProductCreation.Image, avalibleProduct.Id, "AvalibleProduct");
             avalibleProduct.ImageUrl = result.Url;
             avalibleProduct.PublicImageId = result.PublicId;
-             var previewImage = await OverlayImagesAsync(avalibleProductCreation.Image, 
-                @"https://res.cloudinary.com/dbrm5eowo/image/upload/v1737516248/totebag-light-new_large_gm07d2.jpg", 
-                avalibleProduct.Id + "Preview");
-            var uploadResult = await _cloudaryService.UploadImage(previewImage, avalibleProduct.Id + "preview", "AvalibleProduct");
-            avalibleProduct.PreviewUrl = uploadResult.Url;
-            avalibleProduct.PublicPreviewId = uploadResult.PublicId;
+            avalibleProduct.PreviewUrl = result.Url;
+            avalibleProduct.PublicPreviewId = result.PublicId;
             await _unitOfWork.AvaliblreProductRepository.AddAsync(avalibleProduct);
             await _unitOfWork.SaveChangesAsync();
 
@@ -152,7 +149,7 @@ namespace TuiToot.Server.Api.Services
                 yPosition + skOverlay.Height));
             using var image = SKImage.FromBitmap(combinedImage);
             using var data = image.Encode(SKEncodedImageFormat.Png, 100);
-            using var memoryStream = new MemoryStream();
+            var memoryStream = new MemoryStream();
             data.SaveTo(memoryStream);
             memoryStream.Position = 0;
             return new FormFile(memoryStream, 0, memoryStream.Length, "file", fileName + ".png")
@@ -160,6 +157,20 @@ namespace TuiToot.Server.Api.Services
                 Headers = new HeaderDictionary(),
                 ContentType = "image/png"
             };
+        }
+
+        public async Task<IEnumerable<AvalibleProductResponse>> GetByIds(string[] ids)
+        {
+            var avalibleProducts = await _unitOfWork.AvaliblreProductRepository.GetAllAsync(p => ids.Contains(p.Id));
+            return await avalibleProducts.Select(x => new AvalibleProductResponse
+            {
+                Id = x.Id,
+                Name = x.Name,
+                Price = x.Price,
+                ImageUrl = x.ImageUrl,
+                PreviewUrl = x.PreviewUrl,
+                UnitsInStock = x.UnitsInStock
+            }).ToListAsync();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using TuiToot.Server.Api.Cores;
 using TuiToot.Server.Api.Dtos.Request;
 using TuiToot.Server.Api.Dtos.Response;
@@ -7,7 +8,7 @@ using TuiToot.Server.Api.Services.IServices;
 namespace TuiToot.Server.Api.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")] 
+    [Route("api/[controller]")]
     public class AvalibleProductController : ControllerBase
     {
         private readonly IAvalibleProductService _avalibleProductService;
@@ -29,7 +30,8 @@ namespace TuiToot.Server.Api.Controllers
 
         [HttpGet]
         [Route("{id}")]
-        public async Task<IActionResult> GetById([FromRoute]string id)
+
+        public async Task<IActionResult> GetById([FromRoute] string id)
         {
             var response = await _avalibleProductService.GetById(id);
             BaseResponse<AvalibleProductResponse> baseResponse = new BaseResponse<AvalibleProductResponse>
@@ -40,6 +42,7 @@ namespace TuiToot.Server.Api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> Create([FromForm] AvalibleProductCreation avalibleProductCreation)
         {
             var response = await _avalibleProductService.Create(avalibleProductCreation);
@@ -52,6 +55,7 @@ namespace TuiToot.Server.Api.Controllers
 
         [HttpPut]
         [Route("{id}")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> Update([FromRoute] string id, [FromBody] UpdatedAvaliableProduct data)
         {
             var response = await _avalibleProductService.Update(id, data);
@@ -64,6 +68,7 @@ namespace TuiToot.Server.Api.Controllers
 
         [HttpDelete]
         [Route("{id}")]
+        [Authorize(Roles = "ADMIN")]
         public async Task<IActionResult> Delete([FromRoute] string id)
         {
             var response = await _avalibleProductService.Delete(id);
@@ -73,5 +78,17 @@ namespace TuiToot.Server.Api.Controllers
             };
             return Ok(baseResponse);
         }
+        [HttpGet]
+        [Route("GetByIds")]
+        public async Task<IActionResult> GetByIds([FromQuery] string[] ids)
+        {
+            var response = await _avalibleProductService.GetByIds(ids);
+            BaseResponse<IEnumerable<AvalibleProductResponse>> baseResponse = new BaseResponse<IEnumerable<AvalibleProductResponse>>
+            {
+                Data = response
+            };
+            return Ok(baseResponse);
+        }
+    
     }
 }

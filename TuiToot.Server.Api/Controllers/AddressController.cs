@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
+using System.Net.Http.Headers;
 using TuiToot.Server.Api.Cores;
 using TuiToot.Server.Api.Dtos.Request;
 using TuiToot.Server.Api.Dtos.Response;
@@ -90,6 +92,38 @@ namespace TuiToot.Server.Api.Controllers
             var baseResponse = new BaseResponse<List<WardResponse>>
             {
                 Data = data!.Data
+            };
+            return Ok(baseResponse);
+        }
+        [HttpGet("fee/{districtId}")]
+        public async Task<IActionResult> GetFee(string districtId)
+        {
+            var client = _httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.Add("token", _configuration["GHNApi:Token"]);
+            client.DefaultRequestHeaders.Add("shop_id", _configuration["GHNApi:ShopId"]);
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            var queryParams = new Dictionary<string, string>()
+            {
+                {"service_id", _configuration["GHNApi:ServiceId"] },
+                {"insurance_value", _configuration["GHNApi:InsuranceValue"] },
+                {"coupon", "" },
+                {"to_district_id", districtId },
+                {"from_district_id", _configuration["GHNApi:FromDistrictId"] },
+                {"weight", _configuration["GHNApi:Weight"] },
+                {"length", _configuration["GHNApi:Length"] },
+                {"width", _configuration["GHNApi:Width"] },
+                {"height",  _configuration["GHNApi:Height"] }
+            };
+
+            var url = QueryHelpers.AddQueryString(_configuration["GHNApi:FeeUrl"], queryParams);
+            var response = await client.GetAsync(url);
+            string jsonData = await response.Content.ReadAsStringAsync();
+
+            var deserializedResponse = JsonConvert.DeserializeObject<BaseResponse<ShippingResponse>>(jsonData);
+            var baseResponse = new BaseResponse<ShippingResponse>
+            {
+                Data = deserializedResponse!.Data
             };
             return Ok(baseResponse);
         }
