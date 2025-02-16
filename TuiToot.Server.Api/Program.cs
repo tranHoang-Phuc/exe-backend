@@ -139,13 +139,7 @@ namespace TuiToot.Server.Api
                     settings.ApiSecret
                 ));
             });
-            builder.WebHost.ConfigureKestrel(options =>
-            {
-                options.ListenAnyIP(443, listenOptions =>
-                {
-                    listenOptions.UseHttps("certs/certificate.pfx", "yourpassword");
-                });
-            });
+           
             var app = builder.Build();
             app.UseExceptionHandler(appBuilder =>
             {
@@ -165,7 +159,6 @@ namespace TuiToot.Server.Api
                 app.UseSwaggerUI();
             }
             app.UseCors("AllowAll");
-            app.UseHttpsRedirection();
 
 
             app.UseAuthentication();
