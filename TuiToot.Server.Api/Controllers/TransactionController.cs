@@ -72,11 +72,6 @@ namespace TuiToot.Server.Api.Controllers
                 Data = response
             };
             return Ok(baseResponse);
-        }
-        [HttpGet]
-        public async Task<IActionResult> Test()
-        {
-            return Ok("Test");
-        }
+        }        
     }
 }
