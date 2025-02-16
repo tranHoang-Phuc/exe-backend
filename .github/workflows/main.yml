@@ -7,7 +7,7 @@ on:
 
 jobs:
   docker-compose:
-    runs-on: self-host
+    runs-on: self-hosted
     environment: docker
     steps:
     # tai code ve vps
