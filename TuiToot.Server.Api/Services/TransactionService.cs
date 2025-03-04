@@ -26,7 +26,7 @@ namespace TuiToot.Server.Api.Services
                 throw new AppException(ErrorCode.Unauthorized);
             }
             var transactions = await _unitOfWork.TransactionRepository.GetAllAsync(
-                t => t.Order.ApplicationUserId == userId,
+                null,
                 "Order"
             );
             var response = await transactions.Select(t => new TransactionResponse
